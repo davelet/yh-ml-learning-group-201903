@@ -1,0 +1,50 @@
+使用pip 安装 tensorflow
+virtualenv 是 Python 环境管理包
+使用virtualenv 创建 python的虚拟环境
+使用Python的虚拟环境可以隔离不同版本的tensorflow
+
+python --version
+pip --version
+virtualenv --version
+
+
+brew update
+
+获取pip安装文件
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+
+Python安装pip
+python get-pip.py
+
+使用pip安装virtualenv
+sudo pip install virtualenv
+
+使用virtualenv创建Python的虚拟环境
+virtualenv --system-site-packages -p python2.7 ./venv
+
+激活venv虚拟环境
+source venv/bin/activate
+
+
+在venv虚拟环境下，使用pip安装tensorflow
+pip install tensorflow
+
+查看安装list
+pip list installed
+
+在venv虚拟环境中，进入python的交互环境：
+python
+ 
+查看tensorflow是否安装成功
+import tensorflow as tf
+
+退出python环境：
+exit（）
+
+离开虚拟环境：
+deactivate
+
+
+
+
+
