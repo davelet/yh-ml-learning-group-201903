@@ -45,6 +45,13 @@ exit（）
 deactivate
 
 
+tips：
+在执行 import tensorflow as tf 如果有报错：
+numpy.core._multiarray_umath failed to import
+numpy.core.umath failed to import
+
+客更新numpy ：  pip install numpy --upgrade
+
 
 
 
