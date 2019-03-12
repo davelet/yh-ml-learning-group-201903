@@ -1,0 +1,61 @@
+注：import pandas as pd
+
+1、读写
+
+df = pd.read_table('******', sep='\t', encoding="UTF-8", names= [**,**,**])
+
+df.to_csv('***', header=True,mode ='a' ,sep=',',index=False)
+
+df.ix[:5, :10]   #查看数据
+df[['num']] = df[['num']].astype(float)  #数据类型
+
+2、筛选
+#数字
+df1 = df[df['order_s'] <5.0]
+
+#字符串
+df.loc[df['column_name'].isin(some_values)]
+
+
+3、转换
+
+df = pd.DataFrame(数组)
+
+df = pd.DataFrame({'a': [1,2,3,4,5], 'b':[5,4,3,2,1]})
+
+df['appid'].values #转为arrary
+
+df['appid'].values.tolist() #转为list
+
+
+
+5、nan缺失值
+df.column1 = df.column1.fillna('')
+df1 = df.replace(np.nan,' ', regex=True)
+
+6、运算
+
+df['visit_days'] = df.apply(lambda row:float(row['visit_days'])/max(float(row['pay_days']),1),axis =1)
+df['visit_days'] = data_ft['visit_days'].map(lambda x: float(x) if is_number(x) else 0)
+
+
+
+7、合并
+
+#concat 
+result = pd.concat([df1, df4], axis=1)  #合并列
+axis = 1 合并列，=0    合并行
+
+#merge
+data_user = pd.merge(data_user,data_judge,on = ['member_id'],how = 'left')
+
+
+8、其它
+
+排序
+df = df.sort_values(['appid', 'date'], ascending=[True,False]) 
+
+聚合
+out = df.groupby(['city_name','city_code','type','state'], as_index=False).\
+        aggregate({'member_id': pd.Series.count}).\
+	     rename(columns={'member_id': '每周期用户数','state':'是否超级会员'})
