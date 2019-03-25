@@ -11,7 +11,7 @@ def inputs_origin(data_dir):
   # filenames一共5个，从data_batch_1.bin到data_batch_5.bin
   # 读入的都是训练图像
   filenames = [os.path.join(data_dir, 'data_batch_%d.bin' % i)
-               for i in xrange(1, 6)]
+               for i in range(1, 6)]
   # 判断文件是否存在
   for f in filenames:
     if not tf.gfile.Exists(f):
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     # 我们之前有filename_queue = tf.train.string_input_producer(filenames)
     # 这个queue必须通过start_queue_runners才能启动
     # 缺少start_queue_runners程序将不能执行
-    threads = tf.train.start_queue_runners(sess=sess)
+    tf.train.start_queue_runners(sess=sess)
     # 变量初始化
     sess.run(tf.global_variables_initializer())
     # 创建文件夹cifar10_data/raw/
