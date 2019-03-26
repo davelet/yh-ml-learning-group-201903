@@ -1,8 +1,3 @@
-# generate_tfrecord.py
-
-# -*- coding: utf-8 -*-
-
-
 """
 Usage:
   # From tensorflow/models/
@@ -17,12 +12,13 @@ import os
 import io
 import pandas as pd
 import tensorflow as tf
+import pdb
 
 from PIL import Image
 from object_detection.utils import dataset_util
 from collections import namedtuple, OrderedDict
 
-os.chdir('/home/zzf/tensorflow/models/research/object_detection')
+os.chdir('/Users/sheldon/pythonProjects/py3venv/models/research/object_detection/test_images')
 
 flags = tf.app.flags
 flags.DEFINE_string('csv_input', '', 'Path to the CSV input')
@@ -32,8 +28,10 @@ FLAGS = flags.FLAGS
 
 # TO-DO replace this with label map
 def class_text_to_int(row_label):
-    if row_label == 'ZhangJN':     # 需改动
+    if row_label == 'dxx':     # 需改动
         return 1
+    elif row_label == 'wxd':
+        return 2
     else:
         None
 
@@ -45,6 +43,7 @@ def split(df, group):
 
 
 def create_tf_example(group, path):
+    # pdb.set_trace()
     with tf.gfile.GFile(os.path.join(path, '{}'.format(group.filename)), 'rb') as fid:
         encoded_jpg = fid.read()
     encoded_jpg_io = io.BytesIO(encoded_jpg)
@@ -84,10 +83,10 @@ def create_tf_example(group, path):
     }))
     return tf_example
 
-
 def main(_):
     writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
-    path = os.path.join(os.getcwd(), 'images/test')         #  需改动
+    # path = os.path.join(os.getcwd(), '/test_images/')         #  需改动
+    path = '/Users/sheldon/pythonProjects/py3venv/models/research/object_detection/test_images/test'
     examples = pd.read_csv(FLAGS.csv_input)
     grouped = split(examples, 'filename')
     for group in grouped:
