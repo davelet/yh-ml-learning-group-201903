@@ -1,0 +1,159 @@
+# coding=utf-8
+import pandas as pd
+import numpy as np
+import datetime
+import matplotlib.pyplot as plt
+import itertools
+import os
+import tensorflow as tf
+join_col = ['dim_date_id', 'dim_shop_id', 'dim_goods_id']
+FORMAT_STR = '%Y-%m-%d'
+FORMAT_STR_all = '%Y-%m-%d %H:%M:%S'
+#D:/Python36/python
+#tensorboard --logdir=lstm_predict_test
+#http://localhost:6006
+
+"""
+tensorboard 使用
+1、安装tensorboard，版本和tensorflow一致
+pip install tensorboard
+2、找到tensorboard.exe所在的文件夹路径，并将其加入系统环境。
+3、进入保存日志文件的目录，输入tensorboard --logdir=你所保存的文件夹名称
+4、生成可视化日志文件
+5、在浏览器下下打开日志文件
+"""
+
+def PD_DF_norm(temp):
+    mean_all = temp.mean()
+    std_all = temp.std()
+    # out = 100*(temp - temp.min()) / (temp.max() - temp.min())
+    out = (temp- temp.mean())/temp.std()
+    out[out == np.inf] = 0
+    return out,mean_all,std_all
+
+
+def get_train_data(data_all_s,time_step = 28,batch_size=5):
+    test_num = 7
+    data_all_s[continuous_val+[target_val]],mean_all,std_all =PD_DF_norm(data_all_s[continuous_val+[target_val]])
+    data_len = data_all_s.shape[0]
+    batch_index = []
+    train_x, train_y = [], []  # 训练集
+    for i in range(data_len-test_num-time_step):
+        if i % batch_size == 0:
+            batch_index.append(i)
+        x = data_all_s[i:i+time_step][train_val]
+        y = data_all_s[i:i+time_step][target_val]
+        train_x.append(x.values.tolist())
+        train_y.append([[id] for id in y.values.tolist()])
+    batch_index.append(data_len-test_num-time_step)
+    test_x, test_y = [], []  # 训练集
+    for i in range(data_len-test_num-time_step,data_len-time_step):
+        x = data_all_s[i:i+time_step][train_val]
+        y = data_all_s[i:i+time_step][target_val]
+        test_x.append(x.values.tolist())
+        test_y.append(y.values.tolist())
+    return batch_index, train_x, train_y,test_x,test_y,[mean_all,std_all]
+
+def lstm(X):
+    batch_size = tf.shape(X)[0]
+    time_step = tf.shape(X)[1]
+    w_in = weights['in']
+    b_in = biases['in']
+    input = tf.reshape(X, [-1, input_size])  # 需要将tensor转成2维进行计算，计算后的结果作为隐藏层的输入
+    input_rnn = tf.matmul(input, w_in)+b_in
+    # 将tensor转成3维，作为lstm cell的输入
+    input_rnn = tf.reshape(input_rnn, [-1, time_step, rnn_unit])
+    cell = tf.contrib.rnn.BasicLSTMCell(rnn_unit) #tf.keras.layers.LSTMCell
+    init_state = cell.zero_state(batch_size, dtype=tf.float32)
+    output_rnn, final_states = tf.nn.dynamic_rnn(cell, input_rnn, initial_state=init_state, dtype=tf.float32) #keras.layers.RNN(cell)
+    output = tf.reshape(output_rnn, [-1, rnn_unit])
+    w_out = weights['out']
+    b_out = biases['out']
+    pred = tf.matmul(output, w_out)+b_out
+    return pred, final_states
+
+
+target_val = 't_qty'
+dummy_new_list =['week_2', 'week_3', 'week_4', 'week_5', 'week_6', 'week_7']
+disperse_val = ['is_discount','datetype','is_proflag']
+continuous_val = ['t_qty_pre','t_qty_df1','price_df1',
+                  'qty_avg3','qty_m_p1','qty_m_p2','qty_m_p3','price_avg3', 'price_m_p1', 'price_m_p2', 'price_m_p3',
+                  'uv_goods_df1', 'uv_rate_df1','member_id_sum_df1', 'member_rate_df1']
+train_val = disperse_val[1:] + continuous_val+dummy_new_list
+# 文件路径
+train_file = 'sale_dj_ts_one.txt'
+data_all_s = pd.read_table(train_file, sep=',', encoding="UTF-8",low_memory=False)
+
+
+rnn_unit = 10  # 隐层数量
+input_size = len(train_val)
+output_size = 1
+lr = 0.0006  # 学习率
+epochs = 200
+#lstm神经元的个数 time_step
+
+with tf.name_scope('parameters'):
+    # 输入层、输出层权重、偏置
+    weights = {
+        'in': tf.Variable(tf.random_normal([input_size, rnn_unit])),
+        'out': tf.Variable(tf.random_normal([rnn_unit, 1]))
+        }
+    tf.summary.histogram('weights', weights['in'])
+    biases = {
+        'in': tf.Variable(tf.constant(0.1, shape=[rnn_unit, ])),
+        'out': tf.Variable(tf.constant(0.1, shape=[1, ]))
+        }
+    tf.summary.histogram('biases', biases['in'])
+
+
+
+time_step = 45
+batch_size = 7
+batch_index, train_x, train_y,test_x,test_y,norm = get_train_data(data_all_s,time_step = time_step,batch_size=batch_size)
+X = tf.placeholder(tf.float32, shape=[None, time_step, input_size])
+Y = tf.placeholder(tf.float32, shape=[None, time_step, output_size])
+with tf.variable_scope("sec_lstm"):
+    pred, _ = lstm(X)
+with tf.name_scope('loss'):
+    loss = tf.reduce_mean(tf.square(tf.reshape(pred, [-1])-tf.reshape(Y, [-1])))
+    tf.summary.scalar('loss', loss)
+with tf.name_scope('train'):
+    train_op = tf.train.AdamOptimizer(lr).minimize(loss)
+saver = tf.train.Saver(tf.global_variables(), max_to_keep=15)
+with tf.Session() as sess:
+    summary_op = tf.summary.merge_all()
+    writer = tf.summary.FileWriter('./summary/lstm_predict_test', sess.graph)
+    sess.run(tf.global_variables_initializer())
+    for i in range(epochs):  # 这个迭代次数，可以更改，越大预测效果会更好，但需要更长时间
+        for step in range(len(batch_index)-1):
+            _, loss_ = sess.run([train_op, loss], feed_dict={X: train_x[batch_index[
+                                step]:batch_index[step+1]], Y: train_y[batch_index[step]:batch_index[step+1]]})
+            rs = sess.run(summary_op,feed_dict = {X: train_x[batch_index[step]:batch_index[step+1]], Y: train_y[batch_index[step]:batch_index[step+1]]})
+            writer.add_summary(rs, step)
+        if (i+1)%10==0:
+            test_y_loss = [[[item] for item in sub] for sub in test_y]
+            test_loss = sess.run([loss], feed_dict={X: test_x, Y: test_y_loss})
+            print("Number of epochs:", i+1, " loss_train:", loss_," loss_test:", test_loss[0])
+            print("model_save: ", saver.save(sess, './model/modle190328.ckpt'))
+    print("The train has finished")
+    test_predict = []
+    for step in range(len(test_x)):
+        prob = sess.run(pred, feed_dict={X: [test_x[step]]})
+        predict = prob.reshape((-1))
+        test_predict.extend(predict)
+    # 关闭FileWriter的输出流
+    writer.close()
+
+
+#---------测试集合检验
+test_y = [item for sub in test_y for item in sub]
+test_y_1=np.array(test_y)*norm[0][-1]+norm[1][-1]
+test_predict_1=np.array(test_predict)*norm[0][-1]+norm[1][-1]
+acc=np.abs(test_predict_1-test_y_1[:len(test_predict)])/(test_predict_1+test_y_1[:len(test_predict)]) #mean absolute error
+print("The MAE of this predict:",sum(acc)/len(acc))
+# #以折线图表示结果
+plt.figure(figsize=(24,8)) #设置窗口尺寸
+plt.plot(list(range(len(test_predict_1))), test_predict_1, color='b',label = 'prediction')
+plt.plot(list(range(len(test_y_1))), test_y_1,  color='r',label = 'origin')
+plt.legend(fontsize=24) #字体
+plt.show()
