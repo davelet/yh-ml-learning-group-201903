@@ -86,7 +86,7 @@ def create_tf_example(group, path):
 def main(_):
     writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
     # path = os.path.join(os.getcwd(), '/test_images/')         #  需改动
-    path = '/Users/sheldon/pythonProjects/py3venv/models/research/object_detection/test_images/test'
+    path = '/Users/sheldon/pythonProjects/py3venv/models/research/object_detection/test_images/train'
     examples = pd.read_csv(FLAGS.csv_input)
     grouped = split(examples, 'filename')
     for group in grouped:

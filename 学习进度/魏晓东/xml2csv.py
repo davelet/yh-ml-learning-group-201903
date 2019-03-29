@@ -5,7 +5,7 @@ import glob
 import pandas as pd
 import xml.etree.ElementTree as ET
 
-os.chdir('/Users/sheldon/pythonProjects/py3venv/models/research/object_detection/test_images/train')
+os.chdir('/Users/sheldon/pythonProjects/py3venv/models/research/object_detection/test_images/test')
 # path = '/home/zzf/tensorflow/models/research/object_detection/images/test'
 
 def xml_to_csv(path):
@@ -30,7 +30,7 @@ def xml_to_csv(path):
 
 
 # def main():
-image_path = '/Users/sheldon/pythonProjects/py3venv/models/research/object_detection/test_images/train'
+image_path = '/Users/sheldon/pythonProjects/py3venv/models/research/object_detection/test_images/test'
 xml_df = xml_to_csv(image_path)
 xml_df.to_csv('wxd.csv', index=None)
 print('Successfully converted xml to csv.')
