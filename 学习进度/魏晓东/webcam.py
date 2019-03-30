@@ -90,6 +90,7 @@ with detection_graph.as_default():
             (boxes, scores, classes, num_detections) = sess.run(
                 [boxes, scores, classes, num_detections],
                 feed_dict={image_tensor: image_np_expanded})
+            print(scores, num_detections)
             # Visualization of the results of a detection.
             vis_util.visualize_boxes_and_labels_on_image_array(
                 image_np,
@@ -100,6 +101,8 @@ with detection_graph.as_default():
                 use_normalized_coordinates=True,
                 line_thickness=8)
 
+            print(np.squeeze(classes).astype(np.int32), category_index)
+            print('---------------------------')
             # Display output
             cv2.imshow('object detection', cv2.resize(image_np, (800, 600)))
 
