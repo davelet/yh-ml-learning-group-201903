@@ -1,0 +1,8 @@
+1、把时间序列问题转化为监督学习问题
+https://machinelearningmastery.com/convert-time-series-supervised-learning-problem-python/
+
+2、batch_size 和timestep
+https://www.jianshu.com/p/635c4ef1bdd7
+
+3、RNN、lstm、GRU
+https://www.cnblogs.com/lovychen/p/9374277.html
