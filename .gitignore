@@ -1,8 +1,9 @@
 .vscode/settings.json
 .DS_Store
-资源推荐/Deep-Learning-21-Examples-master/chapter_2/cifar10_data/cifar-10-binary.tar.gz
-资源推荐/Deep-Learning-21-Examples-master/chapter_2/cifar10_data/cifar-10-batches-bin/*
-资源推荐/Deep-Learning-21-Examples-master/chapter_2/cifar10_data/raw/*
-资源推荐/Deep-Learning-21-Examples-master/chapter_2/read/*
-资源推荐/Deep-Learning-21-Examples-master/chapter_2/cifar10_train/*
+资源推荐/Deep-Learning-21-Examples-master/*/cifar10_data/cifar-10-binary.tar.gz
+资源推荐/Deep-Learning-21-Examples-master/*/cifar10_data/cifar-10-batches-bin/*
+资源推荐/Deep-Learning-21-Examples-master/*/cifar10_data/raw/*
+资源推荐/Deep-Learning-21-Examples-master/*/read/*
+资源推荐/Deep-Learning-21-Examples-master/*/cifar10_train/*
 events.out.tfevents.*
+.idea/
