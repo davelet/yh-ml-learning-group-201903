@@ -1,0 +1,5 @@
+1、obeject_detection物体识别环境配置和安装，运行和训练测试
+2、windows 下 tensorflow cpu版本和gpu版本有区别
+https://blog.csdn.net/jizhidexiaoming/article/details/81067874  #tensorflow gpu版本
+https://blog.csdn.net/doleria/article/details/79354024  # #tensorflow cpu版本
+3、安装tensorboard 最好在anaconda下装，不然自己要先装visual，pycocotools包安装也会遇到很多问题
